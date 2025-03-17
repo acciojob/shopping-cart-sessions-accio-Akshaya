@@ -1,5 +1,3 @@
-// This is the boilerplate code given for you
-// You can modify this code
 // Product data
 const products = [
   { id: 1, name: "Product 1", price: 10 },
@@ -12,89 +10,78 @@ const products = [
 // DOM elements
 const productList = document.getElementById("product-list");
 const cartList = document.getElementById("cart-list");
-const clearCartBtn = document.getElementById("clear-cart");
+const clearCartBtn = document.getElementById("clear-cart-btn");
+
+// Load cart from session storage
+let cart = JSON.parse(sessionStorage.getItem("cart")) || [];
+
 // Render product list
-function getCart() {
-  return JSON.parse(sessionStorage.getItem("cart")) || [];
-}
-
-function saveCart(cart) {
-  sessionStorage.setItem("cart", JSON.stringify(cart));
-}
-
 function renderProducts() {
   productList.innerHTML = "";
   products.forEach((product) => {
     const li = document.createElement("li");
-    li.innerHTML = `${product.name} - $${product.price} <button class="add-to-cart-btn" data-id="${product.id}">Add to Cart</button>`;
+    li.innerHTML = `${product.name} - $${product.price} 
+      <button class="add-to-cart-btn" data-id="${product.id}">Add to Cart</button>`;
     productList.appendChild(li);
   });
 
-document.querySelectorAll(".add-to-cart-btn").forEach((button) => {
-    button.addEventListener("click", () => {
-      addToCart(parseInt(button.dataset.id));
-    });
+  // Attach event listeners to "Add to Cart" buttons
+  document.querySelectorAll(".add-to-cart-btn").forEach((button) => {
+    button.addEventListener("click", () => addToCart(parseInt(button.dataset.id)));
   });
 }
 
+// Render cart list
 function renderCart() {
-  let cart = getCart();
   cartList.innerHTML = "";
-
   if (cart.length === 0) {
-    cartList.innerHTML = "<li>Your cart is empty.</li>";
-    return;
+    cartList.innerHTML = "<li>Cart is empty</li>";
+  } else {
+    cart.forEach((item, index) => {
+      const li = document.createElement("li");
+      li.innerHTML = `${item.name} - $${item.price} 
+        <button class="remove-from-cart-btn" data-index="${index}">Remove</button>`;
+      cartList.appendChild(li);
+    });
+
+    // Attach event listeners to "Remove" buttons
+    document.querySelectorAll(".remove-from-cart-btn").forEach((button) => {
+      button.addEventListener("click", () => removeFromCart(parseInt(button.dataset.index)));
+    });
   }
 
-cart.forEach((item) => {
-    const li = document.createElement("li");
-    li.innerHTML = `${item.name} - $${item.price} x ${item.quantity} 
-      <button class="remove-from-cart-btn" data-id="${item.id}">Remove</button>`;
-    cartList.appendChild(li);
-  });
-
-document.querySelectorAll(".remove-from-cart-btn").forEach((button) => {
-    button.addEventListener("click", () => {
-      removeFromCart(parseInt(button.dataset.id));
-    });
-  });
+  // Save cart to sessionStorage
+  sessionStorage.setItem("cart", JSON.stringify(cart));
 }
 
+// Add item to cart
 function addToCart(productId) {
-  let cart = getCart();
-  let product = products.find((p) => p.id === productId);
-
-  if (!product) return;
-
-  let item = cart.find((i) => i.id === productId);
-  if (item) {
-    item.quantity += 1;
-  } else {
-    cart.push({ ...product, quantity: 1 });
+  const product = products.find((p) => p.id === productId);
+  if (product) {
+    cart.push(product);
+    renderCart();
   }
-
-  saveCart(cart);
-  renderCart();
 }
 
 // Remove item from cart
-function removeFromCart(productId) {
-  let cart = getCart();
-  cart = cart.filter((item) => item.id !== productId);
-
-  saveCart(cart);
+function removeFromCart(index) {
+  cart.splice(index, 1);
   renderCart();
 }
 
 // Clear cart
 function clearCart() {
-  sessionStorage.removeItem("cart");
+  cart = [];
   renderCart();
 }
 
-// Event listener for clearing cart
-clearCartBtn.addEventListener("click", clearCart);
+// Event Listener for Clear Cart Button
+if (clearCartBtn) {
+  clearCartBtn.addEventListener("click", clearCart);
+}
 
-// Initial render
-renderProducts();
-renderCart();
+// Ensure the script runs only after the DOM is loaded
+document.addEventListener("DOMContentLoaded", () => {
+  renderProducts();
+  renderCart();
+});
