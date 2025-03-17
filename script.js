@@ -13,38 +13,37 @@ const cartList = document.getElementById("cart-list");
 const clearCartBtn = document.getElementById("clear-cart-btn");
 
 // Load cart from session storage
-let cart = JSON.parse(sessionStorage.getItem("cart")) || [];
+let cart = JSON.parse(sessionStorage.getItem("cart"))||[];
 
-// Render product list
-function renderProducts() {
-  productList.innerHTML = "";
-  products.forEach((product) => {
-    const li = document.createElement("li");
-    li.innerHTML = `${product.name} - $${product.price} 
-      <button class="add-to-cart-btn" data-id="${product.id}">Add to Cart</button>`;
-    productList.appendChild(li);
-  });
-
-  // Attach event listeners to "Add to Cart" buttons
-  document.querySelectorAll(".add-to-cart-btn").forEach((button) => {
-    button.addEventListener("click", () => addToCart(parseInt(button.dataset.id)));
-  });
+//Render product List
+function renderProducts(){
+	productList.innerHTML ="";
+	products.forEach((product)=>{
+		const li = document.createElement("li");
+		li.innerHTML =`${product.name} - $${product.price}
+		<button class = "add-to-cart-btn" data-id="${product.id}">Add to Cart</button>`;
+	productList.appendChild(li);
+		
+});
+	
+// Attach event listeners to "Add to Cart" buttons
+document.querySelectorAll(".add-to-cart-btn").forEach((button)=>{
+  button.addEventListener("click",()=>addToCart(parseInt(button.dataset.id)));
+});
+	
 }
-
 // Render cart list
 function renderCart() {
-  cartList.innerHTML = "";
-  if (cart.length === 0) {
-    cartList.innerHTML = "<li>Cart is empty</li>";
-  } else {
+  cartList.innerHTML = ""; // **Ensure the cart is truly empty when no items exist**
+  
+  if (cart.length > 0) {
     cart.forEach((item, index) => {
       const li = document.createElement("li");
       li.innerHTML = `${item.name} - $${item.price} 
         <button class="remove-from-cart-btn" data-index="${index}">Remove</button>`;
       cartList.appendChild(li);
     });
-
-    // Attach event listeners to "Remove" buttons
+// Attach event listeners to "Remove" buttons
     document.querySelectorAll(".remove-from-cart-btn").forEach((button) => {
       button.addEventListener("click", () => removeFromCart(parseInt(button.dataset.index)));
     });
